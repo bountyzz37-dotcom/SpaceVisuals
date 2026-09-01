@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#5DB3FF</color>
+    <color name="on_primary">#EAF4FF</color>
+
+    <color name="secondary">#8BD4FF</color>
+    <color name="on_secondary">#03101E</color>
+
+    <color name="primary_container">#132A45</color>
+    <color name="on_primary_container">#8BD4FF</color>
+
+    <color name="tertiary">#7B8CFF</color>
+    <color name="on_tertiary">#03101E</color>
+
+    <color name="error">#FF6B6B</color>
+    <color name="on_error">#000000</color>
+
+    <color name="background">#050B18</color>
+    <color name="surface">#101B2E</color>
+    <color name="surface_variant">#16233A</color>
+    <color name="on_background">#EAF4FF</color>
+    <color name="on_surface">#EAF4FF</color>
+
+    <color name="outline">#2A3B54</color>
+    <color name="divider">#22314A</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="scrim">#99000B1A</color>
+
+    <color name="glow_green">#5DB3FF</color>
+    <color name="glow_cyan">#8BD4FF</color>
+
+    <!-- liquid-glass card/border tokens -->
+    <color name="glass_card">#26FFFFFF</color>
+    <color name="glass_card_hi">#3AFFFFFF</color>
+    <color name="glass_border">#5DA0D2FF</color>
+    <color name="glass_border_soft">#332F6FA8</color>
+
+    <color name="abi_label_text">#FFFFFF</color>
+    <color name="accent_text">#5DB3FF</color>
+
+    <color name="text_primary">#EAF4FF</color>
+    <color name="text_secondary">#8FA7C4</color>
+    <color name="qa_icon_color">#EAF4FF</color>
+</resources>

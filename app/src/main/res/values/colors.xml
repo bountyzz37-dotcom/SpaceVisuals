@@ -1,0 +1,46 @@
+<resources>
+    <color name="primary">#2F7FE0</color>
+    <color name="on_primary">#FFFFFF</color>
+
+    <color name="secondary">#4FA8E8</color>
+    <color name="on_secondary">#FFFFFF</color>
+
+    <color name="primary_container">#E6F1FC</color>
+    <color name="on_primary_container">#0F4C91</color>
+
+    <color name="tertiary">#5B6BF0</color>
+    <color name="on_tertiary">#FFFFFF</color>
+
+    <color name="error">#F44336</color>
+    <color name="on_error">#FFFFFF</color>
+
+    <color name="background">#F2F7FD</color>
+    <color name="surface">#EAF2FB</color>
+    <color name="surface_variant">#DCEAF8</color>
+    <color name="on_background">#101B2E</color>
+    <color name="on_surface">#101B2E</color>
+    <color name="on_surface_variant">#0F4C91</color>
+
+    <color name="outline">#C7D8EC</color>
+    <color name="white">#FFFFFF</color>
+    <color name="divider">#DCE7F5</color>
+
+    <color name="scrim">#66000B1A</color>
+
+    <color name="glow_green">#2F7FE0</color>
+    <color name="glow_cyan">#4FA8E8</color>
+
+    <!-- liquid-glass card/border tokens -->
+    <color name="glass_card">#B3FFFFFF</color>
+    <color name="glass_card_hi">#CCFFFFFF</color>
+    <color name="glass_border">#662F7FE0</color>
+    <color name="glass_border_soft">#332F7FE0</color>
+
+    <color name="abi_label_text">#000000</color>
+    <color name="accent_text">#0F4C91</color>
+
+    <color name="text_primary">#101B2E</color>
+    <color name="text_secondary">#5A7192</color>
+    <color name="qa_icon_color">#000000</color>
+    <color name="ic_launcher_adaptive_back">#EAF2FB</color>
+</resources>
