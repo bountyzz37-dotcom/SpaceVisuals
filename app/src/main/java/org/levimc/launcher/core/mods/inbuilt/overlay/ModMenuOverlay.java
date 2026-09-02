@@ -22,14 +22,11 @@ import org.levimc.launcher.R;
 import org.levimc.launcher.core.mods.inbuilt.ExternalModuleProvider;
 import org.levimc.launcher.core.mods.inbuilt.InbuiltModuleProvider;
 import org.levimc.launcher.core.mods.inbuilt.UnifiedMod;
-import org.levimc.launcher.core.mods.inbuilt.manager.InbuiltModManager;
 import org.levimc.launcher.core.mods.inbuilt.model.ModIds;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 /**
  * Redesigned Mod Menu Overlay - Liquid glass style with top tabs.
@@ -42,6 +39,11 @@ public class ModMenuOverlay {
         HUD,
         INPUT,
         MISC
+    }
+
+    public interface ModMenuCallback {
+        void onModToggled(String modId, boolean enabled);
+        void onButtonOpacityChanged(int opacity);
     }
 
     private final Activity activity;
@@ -66,23 +68,14 @@ public class ModMenuOverlay {
     private ModMenuCallback callback;
     private ModNotificationManager notificationManager;
 
-    public interface ModMenuCallback {
-        void onModToggled(UnifiedMod mod, boolean enabled);
-        void onOpenConfig(UnifiedMod mod);
-        void onHudEditorRequested();
-        void onSettingsRequested();
-    }
-
     public ModMenuOverlay(Activity activity) {
         this.activity = activity;
+        this.windowManager = (WindowManager) activity.getSystemService(Activity.WINDOW_SERVICE);
+        this.notificationManager = new ModNotificationManager(activity);
     }
 
     public void setCallback(ModMenuCallback callback) {
         this.callback = callback;
-    }
-
-    public void setNotificationManager(ModNotificationManager manager) {
-        this.notificationManager = manager;
     }
 
     public boolean isShowing() {
@@ -90,14 +83,17 @@ public class ModMenuOverlay {
     }
 
     public void show() {
-        if (isShowing) return;
+        if (isShowing) {
+            refreshMods();
+            return;
+        }
         showInternal();
     }
 
     public void hide() {
         if (!isShowing || overlayView == null) return;
         try {
-            if (windowManager != null) {
+            if (windowManager != null && overlayView.getParent() != null) {
                 windowManager.removeView(overlayView);
             } else {
                 ViewGroup parent = (ViewGroup) overlayView.getParent();
@@ -118,7 +114,6 @@ public class ModMenuOverlay {
             LayoutInflater inflater = LayoutInflater.from(activity);
             overlayView = inflater.inflate(R.layout.overlay_mod_menu, null);
 
-            windowManager = (WindowManager) activity.getSystemService(Activity.WINDOW_SERVICE);
             wmParams = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT,
@@ -138,14 +133,12 @@ public class ModMenuOverlay {
             windowManager.addView(overlayView, wmParams);
             isShowing = true;
 
-            // Make search focusable after attach
             wmParams.flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
                     | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
             windowManager.updateViewLayout(overlayView, wmParams);
 
             animateEnter();
         } catch (Exception e) {
-            // Fallback: add to activity content
             showFallback();
         }
     }
@@ -202,47 +195,32 @@ public class ModMenuOverlay {
         adapter.setOnModActionListener(new ModMenuAdapter.OnModActionListener() {
             @Override
             public void onToggle(UnifiedMod mod, boolean enabled) {
-                mod.setEnabled(enabled);
-                if (callback != null) callback.onModToggled(mod, enabled);
-                if (notificationManager != null) {
-                    notificationManager.showToggleNotification(mod.getName(), enabled);
+                mod.applyEnabled(enabled);
+                if (callback != null) {
+                    callback.onModToggled(mod.getId(), enabled);
                 }
             }
 
             @Override
             public void onConfig(UnifiedMod mod) {
-                if (callback != null) callback.onOpenConfig(mod);
+                // Config is handled by existing system
             }
         });
 
-        // Two-column grid like the reference screenshot
         GridLayoutManager glm = new GridLayoutManager(activity, 2);
         modsRecycler.setLayoutManager(glm);
         modsRecycler.setAdapter(adapter);
         modsRecycler.setHasFixedSize(true);
 
-        // Tabs
         tabQuickAccess.setOnClickListener(v -> selectTab(Tab.QUICK_ACCESS));
         tabVisual.setOnClickListener(v -> selectTab(Tab.VISUAL));
         tabHud.setOnClickListener(v -> selectTab(Tab.HUD));
         tabInput.setOnClickListener(v -> selectTab(Tab.INPUT));
         tabMisc.setOnClickListener(v -> selectTab(Tab.MISC));
 
-        // Left nav
         if (navClose != null) navClose.setOnClickListener(v -> hide());
         if (navHome != null) navHome.setOnClickListener(v -> selectTab(Tab.QUICK_ACCESS));
-        if (navSettings != null) {
-            navSettings.setOnClickListener(v -> {
-                if (callback != null) callback.onSettingsRequested();
-            });
-        }
-        if (navProfile != null) {
-            navProfile.setOnClickListener(v -> {
-                if (callback != null) callback.onHudEditorRequested();
-            });
-        }
 
-        // Search
         if (searchInput != null) {
             searchInput.addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -254,10 +232,13 @@ public class ModMenuOverlay {
             });
         }
 
-        // Background click to close
         overlayView.setOnClickListener(v -> hide());
         View container = overlayView.findViewById(R.id.mod_menu_container);
-        if (container != null) container.setOnClickListener(v -> {}); // consume
+        if (container != null) {
+            container.setOnClickListener(v -> {});
+        }
+
+        updateTabStyles();
     }
 
     private void selectTab(Tab tab) {
@@ -288,17 +269,20 @@ public class ModMenuOverlay {
     private void loadMods() {
         allMods.clear();
         try {
-            InbuiltModManager manager = InbuiltModManager.getInstance(activity);
-            // Inbuilt
-            List<UnifiedMod> inbuilt = InbuiltModuleProvider.createMods(activity, manager, null);
+            List<UnifiedMod> inbuilt = InbuiltModuleProvider.load(activity);
             if (inbuilt != null) allMods.addAll(inbuilt);
 
-            // External
-            List<UnifiedMod> external = ExternalModuleProvider.loadExternalMods(activity);
+            List<UnifiedMod> external = ExternalModuleProvider.load(activity);
             if (external != null) allMods.addAll(external);
         } catch (Exception e) {
-            // Keep empty list on failure
+            // keep empty
         }
+    }
+
+    public void refreshMods() {
+        if (!isShowing) return;
+        loadMods();
+        applyFilters();
     }
 
     private void applyFilters() {
@@ -321,9 +305,6 @@ public class ModMenuOverlay {
         }
     }
 
-    /**
-     * Map existing mods into the 5 visual categories.
-     */
     private boolean matchesTab(UnifiedMod mod, Tab tab) {
         String id = mod.getId() != null ? mod.getId() : "";
         String name = mod.getName() != null ? mod.getName().toLowerCase(Locale.US) : "";
@@ -347,8 +328,7 @@ public class ModMenuOverlay {
                         || name.contains("zoom")
                         || name.contains("fps")
                         || name.contains("cps")
-                        || name.contains("pet")
-                        || name.contains("visual");
+                        || name.contains("pet");
 
             case HUD:
                 return id.equals(ModIds.TOGGLE_HUD)
@@ -363,23 +343,14 @@ public class ModMenuOverlay {
                         || id.equals(ModIds.POJAV_CONTROLS)
                         || name.contains("gyro")
                         || name.contains("control")
-                        || name.contains("input")
-                        || name.contains("cursor");
+                        || name.contains("input");
 
             case MISC:
             default:
-                // Everything else + external mods
                 return !matchesTab(mod, Tab.QUICK_ACCESS)
                         && !matchesTab(mod, Tab.VISUAL)
                         && !matchesTab(mod, Tab.HUD)
                         && !matchesTab(mod, Tab.INPUT);
         }
-    }
-
-    /** Call this when mods are enabled/disabled from outside so UI stays in sync */
-    public void refresh() {
-        if (!isShowing) return;
-        loadMods();
-        applyFilters();
     }
 }
