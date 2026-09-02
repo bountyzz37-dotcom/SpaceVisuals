@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mod_row_root"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:layout_margin="4dp"
+    android:background="@drawable/bg_mod_row"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingEnd="8dp">
+
+    <ImageView
+        android:id="@+id/mod_row_icon"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_marginEnd="10dp"
+        android:scaleType="centerInside"
+        android:tint="#A8B0B8" />
+
+    <TextView
+        android:id="@+id/mod_row_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#F1F4F6"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <ImageButton
+        android:id="@+id/mod_row_config"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="7dp"
+        android:src="@drawable/ic_settings"
+        android:tint="#A8B0B8"
+        android:contentDescription="Config" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/mod_row_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:thumbTint="@color/switch_thumb_tint"
+        android:trackTint="@color/switch_track_tint" />
+
+</LinearLayout>
