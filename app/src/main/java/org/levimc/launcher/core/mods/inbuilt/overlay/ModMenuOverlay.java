@@ -140,13 +140,17 @@ public class ModMenuOverlay {
             loadMods();
             applyFilters();
 
+            int wmFlags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                    | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                    | WindowManager.LayoutParams.FLAG_FULLSCREEN;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                wmFlags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+            }
             wmParams = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                            | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                            | WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    wmFlags,
                     PixelFormat.TRANSLUCENT
             );
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
@@ -155,6 +159,9 @@ public class ModMenuOverlay {
             }
             wmParams.gravity = Gravity.CENTER;
             wmParams.token = activity.getWindow().getDecorView().getWindowToken();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                wmParams.setBlurBehindRadius(110);
+            }
 
             windowManager.addView(overlayView, wmParams);
             isShowing = true;
