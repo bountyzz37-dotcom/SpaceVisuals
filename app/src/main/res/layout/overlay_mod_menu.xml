@@ -4,224 +4,125 @@
     android:id="@+id/mod_menu_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#7A000000"
     android:clickable="true"
-    android:focusable="true"
-    android:background="#66000000">
+    android:focusable="true">
 
-    <!-- Main floating glass panel -->
     <androidx.cardview.widget.CardView
         android:id="@+id/mod_menu_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="48dp"
-        app:cardBackgroundColor="#CC1A1D22"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="16dp">
+        app:cardBackgroundColor="#242424"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <!-- Left vertical icon bar -->
+            <!-- Atlas-style top bar -->
             <LinearLayout
-                android:id="@+id/left_nav_bar"
-                android:layout_width="56dp"
-                android:layout_height="match_parent"
-                android:background="#33101418"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp">
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="10dp">
 
-                <ImageButton
-                    android:id="@+id/nav_home"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@drawable/bg_nav_icon_selected"
-                    android:padding="10dp"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_modules"
-                    android:tint="#FFFFFF"
-                    android:contentDescription="Home" />
+                <TextView
+                    android:id="@+id/client_logo"
+                    android:layout_width="30dp"
+                    android:layout_height="34dp"
+                    android:gravity="center"
+                    android:text="A"
+                    android:textColor="#5878FF"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
 
-                <ImageButton
-                    android:id="@+id/nav_settings"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="10dp"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_settings"
-                    android:tint="#A8B0B8"
-                    android:contentDescription="Settings" />
+                <TextView
+                    android:id="@+id/client_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:text="Atlas Client"
+                    android:textColor="#E7E7E7"
+                    android:textSize="16sp" />
 
-                <ImageButton
-                    android:id="@+id/nav_profile"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="10dp"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_edit"
-                    android:tint="#A8B0B8"
-                    android:contentDescription="Profile" />
+                <EditText
+                    android:id="@+id/search_input"
+                    android:layout_width="390dp"
+                    android:layout_height="34dp"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_atlas_search"
+                    android:drawableStart="@drawable/ic_search"
+                    android:drawablePadding="6dp"
+                    android:hint="Search modules"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:textColor="#EEEEEE"
+                    android:textColorHint="#8C8C8C"
+                    android:textSize="13sp" />
 
                 <Space
-                    android:layout_width="1dp"
-                    android:layout_height="0dp"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
                     android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/reset_button"
+                    android:layout_width="62dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/bg_atlas_reset"
+                    android:gravity="center"
+                    android:text="Reset"
+                    android:textColor="#E25D61"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/client_settings_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="Client Settings"
+                    android:textColor="#D9D9D9"
+                    android:textSize="14sp" />
 
                 <ImageButton
                     android:id="@+id/nav_close"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="10dp"
-                    android:scaleType="centerInside"
-                    android:src="@android:drawable/ic_menu_close_clear_cancel"
-                    android:tint="#A8B0B8"
-                    android:contentDescription="Close" />
-
+                    android:contentDescription="Close"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_close_atlas"
+                    android:tint="#E8E8E8" />
             </LinearLayout>
 
-            <!-- Main content -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#303030" />
+
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:paddingStart="12dp"
-                android:paddingEnd="16dp"
-                android:paddingTop="14dp"
-                android:paddingBottom="12dp">
+                android:orientation="horizontal">
 
-                <!-- Top bar: Tabs + Search -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-
-                    <!-- Tabs scroll -->
-                    <HorizontalScrollView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:scrollbars="none"
-                        android:overScrollMode="never">
-
-                        <LinearLayout
-                            android:id="@+id/tab_container"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
-
-                            <TextView
-                                android:id="@+id/tab_quick_access"
-                                android:layout_width="wrap_content"
-                                android:layout_height="34dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@drawable/bg_tab_selected"
-                                android:gravity="center"
-                                android:paddingStart="14dp"
-                                android:paddingEnd="14dp"
-                                android:text="QUICK ACCESS"
-                                android:textColor="#FFFFFF"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tab_visual"
-                                android:layout_width="wrap_content"
-                                android:layout_height="34dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@drawable/bg_tab_unselected"
-                                android:gravity="center"
-                                android:paddingStart="14dp"
-                                android:paddingEnd="14dp"
-                                android:text="VISUAL"
-                                android:textColor="#A8B0B8"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tab_hud"
-                                android:layout_width="wrap_content"
-                                android:layout_height="34dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@drawable/bg_tab_unselected"
-                                android:gravity="center"
-                                android:paddingStart="14dp"
-                                android:paddingEnd="14dp"
-                                android:text="HUD"
-                                android:textColor="#A8B0B8"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tab_input"
-                                android:layout_width="wrap_content"
-                                android:layout_height="34dp"
-                                android:layout_marginEnd="6dp"
-                                android:background="@drawable/bg_tab_unselected"
-                                android:gravity="center"
-                                android:paddingStart="14dp"
-                                android:paddingEnd="14dp"
-                                android:text="INPUT"
-                                android:textColor="#A8B0B8"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tab_misc"
-                                android:layout_width="wrap_content"
-                                android:layout_height="34dp"
-                                android:background="@drawable/bg_tab_unselected"
-                                android:gravity="center"
-                                android:paddingStart="14dp"
-                                android:paddingEnd="14dp"
-                                android:text="MISC"
-                                android:textColor="#A8B0B8"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-
-                        </LinearLayout>
-                    </HorizontalScrollView>
-
-                    <!-- Search -->
-                    <EditText
-                        android:id="@+id/search_input"
-                        android:layout_width="120dp"
-                        android:layout_height="34dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_search_glass"
-                        android:hint="search..."
-                        android:imeOptions="actionSearch"
-                        android:inputType="text"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:textColor="#F1F4F6"
-                        android:textColorHint="#66A8B0B8"
-                        android:textSize="12sp"
-                        android:maxLines="1" />
-
-                </LinearLayout>
-
-                <!-- Mods list (two column style via GridLayoutManager) -->
+                <!-- Two-column module list -->
                 <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.52"
+                    android:paddingStart="6dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="6dp"
+                    android:paddingBottom="6dp">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/mods_recycler"
@@ -229,24 +130,193 @@
                         android:layout_height="match_parent"
                         android:clipToPadding="false"
                         android:overScrollMode="never"
-                        android:paddingBottom="8dp" />
+                        android:paddingBottom="2dp" />
 
                     <TextView
                         android:id="@+id/empty_state_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="No mods in this category"
-                        android:textColor="#66A8B0B8"
+                        android:text="No modules found"
+                        android:textColor="#8C8C8C"
                         android:textSize="14sp"
                         android:visibility="gone" />
-
                 </FrameLayout>
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#303030" />
+
+                <!-- Client settings panel -->
+                <ScrollView
+                    android:id="@+id/client_settings_panel"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fillViewport="true"
+                    android:overScrollMode="never"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingStart="12dp"
+                        android:paddingTop="10dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="14dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Global client settings"
+                            android:textColor="#E6E6E6"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:text="Menu Layout"
+                            android:textColor="#D8D8D8"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="5dp"
+                            android:orientation="horizontal">
+                            <TextView android:id="@+id/menu_layout_auto" style="@style/AtlasSegment" android:text="Auto" />
+                            <TextView android:id="@+id/menu_layout_compact" style="@style/AtlasSegment" android:layout_marginStart="5dp" android:text="Compact" />
+                            <TextView android:id="@+id/menu_layout_expanded" style="@style/AtlasSegment" android:layout_marginStart="5dp" android:text="Expanded" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="Atlas UI Scale"
+                            android:textColor="#D8D8D8"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+                            <SeekBar
+                                android:id="@+id/ui_scale_seek"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:max="100"
+                                android:progress="0" />
+                            <TextView
+                                android:id="@+id/ui_scale_value"
+                                android:layout_width="68dp"
+                                android:layout_height="30dp"
+                                android:layout_marginStart="6dp"
+                                android:background="@drawable/bg_atlas_value"
+                                android:gravity="center"
+                                android:text="0.5"
+                                android:textColor="#D9D9D9"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Show Atlas menu open button"
+                            android:textColor="#D8D8D8"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="5dp"
+                            android:orientation="horizontal">
+                            <TextView android:id="@+id/show_button_never" style="@style/AtlasSegment" android:text="Never" />
+                            <TextView android:id="@+id/show_button_menus" style="@style/AtlasSegment" android:layout_marginStart="5dp" android:text="In Menus" />
+                            <TextView android:id="@+id/show_button_always" style="@style/AtlasSegment" android:layout_marginStart="5dp" android:text="Always" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="Atlas menu button opacity"
+                            android:textColor="#D8D8D8"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+                            <SeekBar
+                                android:id="@+id/button_opacity_seek"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:max="100"
+                                android:progress="70" />
+                            <TextView
+                                android:id="@+id/button_opacity_value"
+                                android:layout_width="68dp"
+                                android:layout_height="30dp"
+                                android:layout_marginStart="6dp"
+                                android:background="@drawable/bg_atlas_value"
+                                android:gravity="center"
+                                android:text="0.7"
+                                android:textColor="#D9D9D9"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/hud_editor_key_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="HUD Editor Key: M"
+                            android:textColor="#D8D8D8"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/hud_editor_key_button"
+                            android:layout_width="116dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="-26dp"
+                            android:background="@drawable/bg_atlas_button"
+                            android:gravity="center"
+                            android:text="Change Key"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:text="Client Settings Key: None"
+                            android:textColor="#D8D8D8"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:layout_width="116dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="-26dp"
+                            android:background="@drawable/bg_atlas_button"
+                            android:gravity="center"
+                            android:text="Change Key"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp" />
+
+                    </LinearLayout>
+                </ScrollView>
             </LinearLayout>
-
         </LinearLayout>
-
     </androidx.cardview.widget.CardView>
-
 </FrameLayout>

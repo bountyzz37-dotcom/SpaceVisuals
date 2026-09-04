@@ -1,6 +1,7 @@
 package org.levimc.launcher.core.mods.inbuilt.overlay;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,297 +15,251 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.levimc.launcher.R;
 import org.levimc.launcher.core.mods.inbuilt.ExternalModuleProvider;
 import org.levimc.launcher.core.mods.inbuilt.InbuiltModuleProvider;
 import org.levimc.launcher.core.mods.inbuilt.UnifiedMod;
-import org.levimc.launcher.core.mods.inbuilt.model.ModIds;
+import org.levimc.launcher.core.mods.inbuilt.manager.InbuiltModManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Redesigned Mod Menu Overlay - Liquid glass style with top tabs.
- */
+/** Atlas-inspired in-game module menu. */
 public class ModMenuOverlay {
-
     private static final String TAG = "ModMenuOverlay";
-
-    public enum Tab {
-        QUICK_ACCESS,
-        VISUAL,
-        HUD,
-        INPUT,
-        MISC
-    }
+    private final Activity activity;
+    private final WindowManager windowManager;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private View overlayView;
+    private boolean isShowing;
+    private RecyclerView modsRecycler;
+    private ModMenuAdapter adapter;
+    private EditText searchInput;
+    private TextView emptyStateText;
+    private ImageButton navClose;
+    private TextView resetButton;
+    private final List<UnifiedMod> allMods = new ArrayList<>();
+    private String currentQuery = "";
+    private ModMenuCallback callback;
 
     public interface ModMenuCallback {
         void onModToggled(String modId, boolean enabled);
         void onButtonOpacityChanged(int opacity);
     }
 
-    private final Activity activity;
-    private View overlayView;
-    private WindowManager windowManager;
-    private WindowManager.LayoutParams wmParams;
-    private final Handler handler = new Handler(Looper.getMainLooper());
-    private boolean isShowing = false;
-
-    private RecyclerView modsRecycler;
-    private ModMenuAdapter adapter;
-    private EditText searchInput;
-    private TextView emptyStateText;
-
-    private TextView tabQuickAccess, tabVisual, tabHud, tabInput, tabMisc;
-    private ImageButton navHome, navSettings, navProfile, navClose;
-
-    private List<UnifiedMod> allMods = new ArrayList<>();
-    private Tab activeTab = Tab.QUICK_ACCESS;
-    private String currentQuery = "";
-
-    private ModMenuCallback callback;
-    private ModNotificationManager notificationManager;
-
     public ModMenuOverlay(Activity activity) {
         this.activity = activity;
         this.windowManager = (WindowManager) activity.getSystemService(Activity.WINDOW_SERVICE);
-        this.notificationManager = new ModNotificationManager(activity);
     }
 
-    public void setCallback(ModMenuCallback callback) {
-        this.callback = callback;
-    }
-
-    public boolean isShowing() {
-        return isShowing;
-    }
+    public void setCallback(ModMenuCallback callback) { this.callback = callback; }
+    public boolean isShowing() { return isShowing; }
+    public void toggle() { if (isShowing) hide(); else show(); }
 
     public void show() {
-        if (isShowing) {
-            refreshMods();
-            return;
+        if (isShowing) { refreshMods(); return; }
+        if (activity.isFinishing() || activity.isDestroyed()) return;
+        try {
+            overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_menu, null);
+            int ui = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            overlayView.setSystemUiVisibility(ui);
+            setupViews();
+            loadMods();
+            applyFilters();
+
+            int sw = activity.getResources().getDisplayMetrics().widthPixels;
+            int sh = activity.getResources().getDisplayMetrics().heightPixels;
+            int panelW = Math.max(620, Math.min((int) (sw * 0.60f), sw - 28));
+            int panelH = Math.max(330, Math.min((int) (sh * 0.48f), sh - 28));
+            View container = overlayView.findViewById(R.id.mod_menu_container);
+            FrameLayoutParamsHelper.setCenteredSize(container, panelW, panelH);
+
+            int flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                    | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                    | WindowManager.LayoutParams.FLAG_FULLSCREEN;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
+            WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_PANEL, flags, PixelFormat.TRANSLUCENT);
+            params.gravity = Gravity.CENTER;
+            params.token = activity.getWindow().getDecorView().getWindowToken();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P)
+                params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) params.setBlurBehindRadius(28);
+            windowManager.addView(overlayView, params);
+            isShowing = true;
+            overlayView.setAlpha(0f);
+            overlayView.animate().alpha(1f).setDuration(180).start();
+            container.setAlpha(0f);
+            container.setScaleX(0.97f);
+            container.setScaleY(0.97f);
+            container.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(180).start();
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to show menu", e);
+            showFallback();
         }
-        showInternal();
     }
 
     public void hide() {
         if (!isShowing || overlayView == null) return;
         try {
-            if (windowManager != null && overlayView.getParent() != null) {
-                windowManager.removeView(overlayView);
-            } else {
-                ViewGroup parent = (ViewGroup) overlayView.getParent();
-                if (parent != null) parent.removeView(overlayView);
+            if (windowManager != null) {
+                try {
+                    windowManager.removeViewImmediate(overlayView);
+                } catch (Exception ignored) {
+                    if (overlayView.getParent() instanceof ViewGroup) ((ViewGroup) overlayView.getParent()).removeView(overlayView);
+                }
+            } else if (overlayView.getParent() instanceof ViewGroup) {
+                ((ViewGroup) overlayView.getParent()).removeView(overlayView);
             }
-        } catch (Exception e) {
-            Log.e(TAG, "hide failed", e);
-        }
+        } catch (Exception e) { Log.e(TAG, "Unable to hide menu", e); }
         isShowing = false;
         overlayView = null;
     }
 
-    public void toggle() {
-        if (isShowing) hide();
-        else show();
-    }
-
-    private void showInternal() {
-        if (isShowing || activity.isFinishing() || activity.isDestroyed()) return;
-
-        try {
-            overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_menu, null);
-
-            int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-            overlayView.setSystemUiVisibility(uiOptions);
-
-            overlayView.setOnSystemUiVisibilityChangeListener(visibility -> {
-                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                    if (overlayView != null) {
-                        overlayView.setSystemUiVisibility(uiOptions);
-                    }
-                }
-            });
-
-            setupViews();
-            loadMods();
-            applyFilters();
-
-            int wmFlags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                    | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                    | WindowManager.LayoutParams.FLAG_FULLSCREEN;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                wmFlags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
-            }
-            wmParams = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
-                    wmFlags,
-                    PixelFormat.TRANSLUCENT
-            );
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                wmParams.layoutInDisplayCutoutMode =
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-            }
-            wmParams.gravity = Gravity.CENTER;
-            wmParams.token = activity.getWindow().getDecorView().getWindowToken();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                wmParams.setBlurBehindRadius(110);
-            }
-
-            windowManager.addView(overlayView, wmParams);
-            isShowing = true;
-
-            overlayView.setAlpha(0f);
-            overlayView.animate().alpha(1f).setDuration(220).start();
-
-            View menuContainer = overlayView.findViewById(R.id.mod_menu_container);
-            if (menuContainer != null) {
-                menuContainer.setAlpha(0f);
-                menuContainer.setScaleX(0.92f);
-                menuContainer.setScaleY(0.92f);
-                menuContainer.animate()
-                        .alpha(1f)
-                        .scaleX(1f)
-                        .scaleY(1f)
-                        .setDuration(220)
-                        .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f))
-                        .start();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "showInternal failed", e);
-            showFallback();
-        }
-    }
-
     private void showFallback() {
-        if (isShowing) return;
         try {
-            ViewGroup rootView = activity.findViewById(android.R.id.content);
-            if (rootView == null) {
-                Log.e(TAG, "showFallback: rootView is null");
-                return;
-            }
-
+            ViewGroup root = activity.findViewById(android.R.id.content);
+            if (root == null) return;
             overlayView = LayoutInflater.from(activity).inflate(R.layout.overlay_mod_menu, null);
-            setupViews();
-            loadMods();
-            applyFilters();
-
-            rootView.addView(overlayView, new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT));
+            setupViews(); loadMods(); applyFilters();
+            root.addView(overlayView, new ViewGroup.LayoutParams(-1, -1));
             isShowing = true;
-            wmParams = null;
-
-            overlayView.setAlpha(0f);
-            overlayView.animate().alpha(1f).setDuration(220).start();
-        } catch (Exception e) {
-            Log.e(TAG, "showFallback failed", e);
-        }
+        } catch (Exception e) { Log.e(TAG, "Fallback failed", e); }
     }
 
     private void setupViews() {
         modsRecycler = overlayView.findViewById(R.id.mods_recycler);
         searchInput = overlayView.findViewById(R.id.search_input);
         emptyStateText = overlayView.findViewById(R.id.empty_state_text);
-
-        tabQuickAccess = overlayView.findViewById(R.id.tab_quick_access);
-        tabVisual = overlayView.findViewById(R.id.tab_visual);
-        tabHud = overlayView.findViewById(R.id.tab_hud);
-        tabInput = overlayView.findViewById(R.id.tab_input);
-        tabMisc = overlayView.findViewById(R.id.tab_misc);
-
-        navHome = overlayView.findViewById(R.id.nav_home);
-        navSettings = overlayView.findViewById(R.id.nav_settings);
-        navProfile = overlayView.findViewById(R.id.nav_profile);
         navClose = overlayView.findViewById(R.id.nav_close);
+        resetButton = overlayView.findViewById(R.id.reset_button);
 
         adapter = new ModMenuAdapter();
         adapter.setHasStableIds(true);
         adapter.setOnModActionListener(new ModMenuAdapter.OnModActionListener() {
-            @Override
-            public void onToggle(UnifiedMod mod, boolean enabled) {
+            @Override public void onToggle(UnifiedMod mod, boolean enabled) {
                 mod.applyEnabled(enabled);
-                if (callback != null) {
-                    callback.onModToggled(mod.getId(), enabled);
-                }
+                if (callback != null) callback.onModToggled(mod.getId(), enabled);
             }
-
-            @Override
-            public void onConfig(UnifiedMod mod) {
-                // Config handled by existing system
+            @Override public void onConfig(UnifiedMod mod) {
+                Toast.makeText(activity, mod.getName() + " settings are available from its module settings.", Toast.LENGTH_SHORT).show();
             }
         });
-
-        // Single column list for the new row layout
-        modsRecycler.setLayoutManager(new LinearLayoutManager(activity));
+        modsRecycler.setLayoutManager(new GridLayoutManager(activity, 2));
         modsRecycler.setAdapter(adapter);
         modsRecycler.setHasFixedSize(true);
 
-        if (tabQuickAccess != null) tabQuickAccess.setOnClickListener(v -> selectTab(Tab.QUICK_ACCESS));
-        if (tabVisual != null) tabVisual.setOnClickListener(v -> selectTab(Tab.VISUAL));
-        if (tabHud != null) tabHud.setOnClickListener(v -> selectTab(Tab.HUD));
-        if (tabInput != null) tabInput.setOnClickListener(v -> selectTab(Tab.INPUT));
-        if (tabMisc != null) tabMisc.setOnClickListener(v -> selectTab(Tab.MISC));
-
         if (navClose != null) navClose.setOnClickListener(v -> hide());
-        if (navHome != null) navHome.setOnClickListener(v -> selectTab(Tab.QUICK_ACCESS));
-
-        if (searchInput != null) {
-            searchInput.addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    currentQuery = s != null ? s.toString().trim().toLowerCase(Locale.US) : "";
-                    applyFilters();
-                }
-                @Override public void afterTextChanged(Editable s) {}
-            });
-        }
+        if (searchInput != null) searchInput.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int before, int count) {
+                currentQuery = s == null ? "" : s.toString().trim().toLowerCase(Locale.US);
+                applyFilters();
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+        if (resetButton != null) resetButton.setOnClickListener(v -> resetClientSettings());
+        setupClientSettings();
 
         overlayView.setOnClickListener(v -> hide());
         View container = overlayView.findViewById(R.id.mod_menu_container);
-        if (container != null) {
-            container.setOnClickListener(v -> {}); // consume clicks inside panel
+        if (container != null) container.setOnClickListener(v -> {});
+    }
+
+    private void setupClientSettings() {
+        InbuiltModManager manager = InbuiltModManager.getInstance(activity);
+        SeekBar scale = overlayView.findViewById(R.id.ui_scale_seek);
+        TextView scaleValue = overlayView.findViewById(R.id.ui_scale_value);
+        SeekBar opacity = overlayView.findViewById(R.id.button_opacity_seek);
+        TextView opacityValue = overlayView.findViewById(R.id.button_opacity_value);
+        int storedOpacity = manager.getModMenuButtonOpacity();
+        if (scale != null) {
+            scale.setProgress(0);
+            scale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override public void onProgressChanged(SeekBar b, int p, boolean fromUser) {
+                    float value = 0.5f + p / 100f;
+                    if (scaleValue != null) scaleValue.setText(String.format(Locale.US, "%.1f", value));
+                }
+                @Override public void onStartTrackingTouch(SeekBar b) {}
+                @Override public void onStopTrackingTouch(SeekBar b) {}
+            });
         }
-
-        updateTabStyles();
-    }
-
-    private void selectTab(Tab tab) {
-        activeTab = tab;
-        updateTabStyles();
-        applyFilters();
-    }
-
-    private void updateTabStyles() {
-        styleTab(tabQuickAccess, activeTab == Tab.QUICK_ACCESS);
-        styleTab(tabVisual, activeTab == Tab.VISUAL);
-        styleTab(tabHud, activeTab == Tab.HUD);
-        styleTab(tabInput, activeTab == Tab.INPUT);
-        styleTab(tabMisc, activeTab == Tab.MISC);
-    }
-
-    private void styleTab(TextView tab, boolean selected) {
-        if (tab == null) return;
-        if (selected) {
-            tab.setBackgroundResource(R.drawable.bg_tab_selected);
-            tab.setTextColor(0xFFFFFFFF);
-        } else {
-            tab.setBackgroundResource(R.drawable.bg_tab_unselected);
-            tab.setTextColor(0xFFA8B0B8);
+        if (opacity != null) {
+            opacity.setProgress(storedOpacity);
+            updateOpacityLabel(opacityValue, storedOpacity);
+            opacity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override public void onProgressChanged(SeekBar b, int p, boolean fromUser) {
+                    manager.setModMenuButtonOpacity(p);
+                    updateOpacityLabel(opacityValue, p);
+                    if (callback != null) callback.onButtonOpacityChanged(p);
+                }
+                @Override public void onStartTrackingTouch(SeekBar b) {}
+                @Override public void onStopTrackingTouch(SeekBar b) {}
+            });
         }
+        selectSegment(R.id.menu_layout_auto, true);
+        selectSegment(R.id.show_button_menus, manager.isModMenuEnabled() && manager.isPauseMenuOnly());
+        selectSegment(R.id.show_button_always, manager.isModMenuEnabled() && !manager.isPauseMenuOnly());
+        selectSegment(R.id.show_button_never, !manager.isModMenuEnabled());
+        bindSegment(R.id.menu_layout_auto, R.id.menu_layout_auto, true);
+        bindSegment(R.id.menu_layout_compact, R.id.menu_layout_auto, false);
+        bindSegment(R.id.menu_layout_expanded, R.id.menu_layout_auto, false);
+        bindShowSegment(R.id.show_button_never, false, false);
+        bindShowSegment(R.id.show_button_menus, true, true);
+        bindShowSegment(R.id.show_button_always, true, false);
+        View key = overlayView.findViewById(R.id.hud_editor_key_button);
+        if (key != null) key.setOnClickListener(v -> Toast.makeText(activity, "HUD Editor Key: M", Toast.LENGTH_SHORT).show());
+    }
+
+    private void bindSegment(int id, int selectedId, boolean selected) {
+        View v = overlayView.findViewById(id);
+        if (v != null) v.setOnClickListener(x -> {
+            for (int other : new int[]{R.id.menu_layout_auto, R.id.menu_layout_compact, R.id.menu_layout_expanded}) selectSegment(other, other == id);
+        });
+    }
+
+    private void bindShowSegment(int id, boolean enabled, boolean pauseOnly) {
+        View v = overlayView.findViewById(id);
+        if (v != null) v.setOnClickListener(x -> {
+            InbuiltModManager m = InbuiltModManager.getInstance(activity);
+            m.setModMenuEnabled(enabled); m.setPauseMenuOnly(pauseOnly);
+            selectSegment(R.id.show_button_never, id == R.id.show_button_never);
+            selectSegment(R.id.show_button_menus, id == R.id.show_button_menus);
+            selectSegment(R.id.show_button_always, id == R.id.show_button_always);
+        });
+    }
+
+    private void selectSegment(int id, boolean selected) {
+        View v = overlayView.findViewById(id);
+        if (v != null) {
+            v.setBackgroundResource(selected ? R.drawable.bg_atlas_segment_selected : R.drawable.bg_atlas_segment_unselected);
+            if (v instanceof TextView) ((TextView) v).setTextColor(selected ? Color.WHITE : Color.DKGRAY);
+        }
+    }
+
+    private void updateOpacityLabel(TextView view, int value) { if (view != null) view.setText(String.format(Locale.US, "%.1f", value / 100f)); }
+
+    private void resetClientSettings() {
+        InbuiltModManager m = InbuiltModManager.getInstance(activity);
+        m.setModMenuButtonOpacity(70);
+        m.setModMenuEnabled(true);
+        m.setPauseMenuOnly(true);
+        SeekBar scale = overlayView.findViewById(R.id.ui_scale_seek); if (scale != null) scale.setProgress(0);
+        SeekBar opacity = overlayView.findViewById(R.id.button_opacity_seek); if (opacity != null) opacity.setProgress(70);
+        selectSegment(R.id.menu_layout_auto, true); selectSegment(R.id.menu_layout_compact, false); selectSegment(R.id.menu_layout_expanded, false);
+        selectSegment(R.id.show_button_never, false); selectSegment(R.id.show_button_menus, true); selectSegment(R.id.show_button_always, false);
+        if (callback != null) callback.onButtonOpacityChanged(70);
     }
 
     private void loadMods() {
@@ -312,86 +267,33 @@ public class ModMenuOverlay {
         try {
             List<UnifiedMod> inbuilt = InbuiltModuleProvider.load(activity);
             if (inbuilt != null) allMods.addAll(inbuilt);
-
             List<UnifiedMod> external = ExternalModuleProvider.load(activity);
             if (external != null) allMods.addAll(external);
-        } catch (Exception e) {
-            Log.e(TAG, "loadMods failed", e);
-        }
+        } catch (Exception e) { Log.e(TAG, "loadMods failed", e); }
     }
 
-    public void refreshMods() {
-        if (!isShowing) return;
-        loadMods();
-        applyFilters();
-    }
+    public void refreshMods() { if (!isShowing) return; loadMods(); applyFilters(); }
 
     private void applyFilters() {
         List<UnifiedMod> filtered = new ArrayList<>();
-
         for (UnifiedMod mod : allMods) {
-            if (!matchesTab(mod, activeTab)) continue;
             if (!currentQuery.isEmpty()) {
-                String name = mod.getName() != null ? mod.getName().toLowerCase(Locale.US) : "";
-                String desc = mod.getDescription() != null ? mod.getDescription().toLowerCase(Locale.US) : "";
-                if (!name.contains(currentQuery) && !desc.contains(currentQuery)) continue;
+                String n = mod.getName() == null ? "" : mod.getName().toLowerCase(Locale.US);
+                String d = mod.getDescription() == null ? "" : mod.getDescription().toLowerCase(Locale.US);
+                if (!n.contains(currentQuery) && !d.contains(currentQuery)) continue;
             }
             filtered.add(mod);
         }
-
         adapter.updateMods(filtered);
-
-        if (emptyStateText != null) {
-            emptyStateText.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
-        }
+        if (emptyStateText != null) emptyStateText.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
-    private boolean matchesTab(UnifiedMod mod, Tab tab) {
-        String id = mod.getId() != null ? mod.getId() : "";
-        String name = mod.getName() != null ? mod.getName().toLowerCase(Locale.US) : "";
-
-        switch (tab) {
-            case QUICK_ACCESS:
-                return id.equals(ModIds.QUICK_DROP)
-                        || id.equals(ModIds.SNAPLOOK)
-                        || id.equals(ModIds.AUTO_SPRINT)
-                        || id.equals(ModIds.VIRTUAL_CURSOR)
-                        || id.equals(ModIds.CAMERA_PERSPECTIVE)
-                        || name.contains("quick")
-                        || name.contains("snap")
-                        || name.contains("sprint");
-
-            case VISUAL:
-                return id.equals(ModIds.ZOOM)
-                        || id.equals(ModIds.FPS_DISPLAY)
-                        || id.equals(ModIds.CPS_DISPLAY)
-                        || id.equals(ModIds.CHICK_PET)
-                        || name.contains("zoom")
-                        || name.contains("fps")
-                        || name.contains("cps")
-                        || name.contains("pet");
-
-            case HUD:
-                return id.equals(ModIds.TOGGLE_HUD)
-                        || id.equals(ModIds.HOTBAR_SLOT)
-                        || id.equals(ModIds.MORE_BUTTONS)
-                        || name.contains("hud")
-                        || name.contains("hotbar")
-                        || name.contains("button");
-
-            case INPUT:
-                return id.equals(ModIds.GYRO)
-                        || id.equals(ModIds.POJAV_CONTROLS)
-                        || name.contains("gyro")
-                        || name.contains("control")
-                        || name.contains("input");
-
-            case MISC:
-            default:
-                return !matchesTab(mod, Tab.QUICK_ACCESS)
-                        && !matchesTab(mod, Tab.VISUAL)
-                        && !matchesTab(mod, Tab.HUD)
-                        && !matchesTab(mod, Tab.INPUT);
+    /** Small helper kept here so the XML can remain simple and density-independent. */
+    private static final class FrameLayoutParamsHelper {
+        static void setCenteredSize(View view, int width, int height) {
+            if (view == null) return;
+            android.widget.FrameLayout.LayoutParams p = new android.widget.FrameLayout.LayoutParams(width, height, Gravity.CENTER);
+            view.setLayoutParams(p);
         }
     }
 }
