@@ -694,7 +694,7 @@ public class InbuiltOverlayManager {
         }
     }
 
-    public void setHudEditorMode(boolean active) {
+        public void setHudEditorMode(boolean active) {
         hudEditorMode = active;
         for (BaseOverlayButton overlay : overlays) {
             overlay.setHudEditorMode(active);
@@ -725,6 +725,10 @@ public class InbuiltOverlayManager {
         } else {
             selectHudEditorOverlay(null);
         }
+    }
+
+    public boolean isHudEditorModeActive() {
+        return hudEditorMode;
     }
 
     public void setHudEditorSelectionListener(HudEditorSelectionListener listener) {
