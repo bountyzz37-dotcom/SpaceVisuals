@@ -13,18 +13,18 @@ public class HudEditorButton extends BaseOverlayButton {
 
     @Override
     protected String getModId() {
-        return ModIds.TOGGLE_HUD; // reuse or add a dedicated id if you have one
+        return ModIds.TOGGLE_HUD;
     }
 
     @Override
     protected int getIconResource() {
-        return R.drawable.ic_toggle_hud_normal; // swap for a dedicated edit icon if you have one
+        return R.drawable.ic_toggle_hud_normal;
     }
 
     @Override
     protected void onButtonClick() {
         InbuiltOverlayManager mgr = InbuiltOverlayManager.getInstance();
-        boolean nowActive = !mgr.isHudEditorModeActive(); // see note below
+        boolean nowActive = !mgr.isHudEditorModeActive();
         mgr.setHudEditorMode(nowActive);
         updateButtonState(nowActive);
     }
