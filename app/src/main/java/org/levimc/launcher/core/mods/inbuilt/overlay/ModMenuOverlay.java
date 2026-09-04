@@ -16,9 +16,12 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -153,7 +156,7 @@ public class ModMenuOverlay {
                 if (callback != null) callback.onModToggled(mod.getId(), enabled);
             }
             @Override public void onConfig(UnifiedMod mod) {
-                Toast.makeText(activity, mod.getName() + " settings are available from its module settings.", Toast.LENGTH_SHORT).show();
+                openModConfig(mod);
             }
         });
         modsRecycler.setLayoutManager(new GridLayoutManager(activity, 2));
@@ -185,11 +188,14 @@ public class ModMenuOverlay {
         TextView opacityValue = overlayView.findViewById(R.id.button_opacity_value);
         int storedOpacity = manager.getModMenuButtonOpacity();
         if (scale != null) {
-            scale.setProgress(0);
+            scale.setProgress(50);
+            if (scaleValue != null) scaleValue.setText("1.0");
+            applyUiScale(1.0f);
             scale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override public void onProgressChanged(SeekBar b, int p, boolean fromUser) {
-                    float value = 0.5f + p / 100f;
+                    float value = 0.5f + (p / 100f);
                     if (scaleValue != null) scaleValue.setText(String.format(Locale.US, "%.1f", value));
+                    applyUiScale(value);
                 }
                 @Override public void onStartTrackingTouch(SeekBar b) {}
                 @Override public void onStopTrackingTouch(SeekBar b) {}
@@ -255,7 +261,7 @@ public class ModMenuOverlay {
         m.setModMenuButtonOpacity(70);
         m.setModMenuEnabled(true);
         m.setPauseMenuOnly(true);
-        SeekBar scale = overlayView.findViewById(R.id.ui_scale_seek); if (scale != null) scale.setProgress(0);
+        SeekBar scale = overlayView.findViewById(R.id.ui_scale_seek); if (scale != null) { scale.setProgress(50); applyUiScale(1.0f); TextView sv = overlayView.findViewById(R.id.ui_scale_value); if (sv != null) sv.setText("1.0"); }
         SeekBar opacity = overlayView.findViewById(R.id.button_opacity_seek); if (opacity != null) opacity.setProgress(70);
         selectSegment(R.id.menu_layout_auto, true); selectSegment(R.id.menu_layout_compact, false); selectSegment(R.id.menu_layout_expanded, false);
         selectSegment(R.id.show_button_never, false); selectSegment(R.id.show_button_menus, true); selectSegment(R.id.show_button_always, false);
@@ -286,6 +292,57 @@ public class ModMenuOverlay {
         }
         adapter.updateMods(filtered);
         if (emptyStateText != null) emptyStateText.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+
+    private void applyUiScale(float scale) {
+        if (overlayView == null) return;
+        View container = overlayView.findViewById(R.id.mod_menu_container);
+        if (container == null) return;
+        container.setScaleX(scale);
+        container.setScaleY(scale);
+        container.setPivotX(container.getWidth() / 2f);
+        container.setPivotY(container.getHeight() / 2f);
+        if (container.getWidth() == 0) {
+            container.post(() -> {
+                container.setPivotX(container.getWidth() / 2f);
+                container.setPivotY(container.getHeight() / 2f);
+            });
+        }
+    }
+
+    private void openModConfig(UnifiedMod mod) {
+        if (mod == null || !mod.hasConfig()) {
+            Toast.makeText(activity, "No settings for this module", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            ScrollView scroll = new ScrollView(activity);
+            scroll.setFillViewport(true);
+            LinearLayout container = new LinearLayout(activity);
+            container.setOrientation(LinearLayout.VERTICAL);
+            int pad = (int) (16 * activity.getResources().getDisplayMetrics().density);
+            container.setPadding(pad, pad, pad, pad);
+            scroll.addView(container, new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            ModConfigView.render(activity, container, mod, () -> {});
+            AlertDialog dialog = new AlertDialog.Builder(activity)
+                    .setTitle(mod.getName() + " settings")
+                    .setView(scroll)
+                    .setPositiveButton("Done", (d, w) -> d.dismiss())
+                    .create();
+            dialog.show();
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setLayout(
+                        (int) (Math.min(activity.getResources().getDisplayMetrics().widthPixels * 0.9f,
+                                420 * activity.getResources().getDisplayMetrics().density)),
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "openModConfig failed", e);
+            Toast.makeText(activity, "Failed to open settings: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     /** Small helper kept here so the XML can remain simple and density-independent. */
