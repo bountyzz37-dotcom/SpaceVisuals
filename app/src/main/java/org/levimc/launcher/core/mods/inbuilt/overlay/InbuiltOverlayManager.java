@@ -44,6 +44,8 @@ public class InbuiltOverlayManager {
     private String selectedDisplayModId;
     private HudEditorSelectionListener hudEditorSelectionListener;
     private boolean hudEditorMode = false;
+    private android.widget.TextView hudEditorExitButton;
+    private android.view.WindowManager.LayoutParams hudEditorExitParams;
     private int baseY = 150;
     private static final int SPACING = 70;
     private static final int START_X = 50;
@@ -722,9 +724,71 @@ public class InbuiltOverlayManager {
 
         if (active) {
             selectFirstHudEditorOverlay();
+            showHudEditorExitButton();
         } else {
             selectHudEditorOverlay(null);
+            hideHudEditorExitButton();
         }
+    }
+
+    private void showHudEditorExitButton() {
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
+        try {
+            if (hudEditorExitButton != null) {
+                hudEditorExitButton.setVisibility(android.view.View.VISIBLE);
+                return;
+            }
+            android.view.WindowManager wm = (android.view.WindowManager)
+                    activity.getSystemService(android.content.Context.WINDOW_SERVICE);
+            if (wm == null) return;
+            float density = activity.getResources().getDisplayMetrics().density;
+            android.widget.TextView btn = new android.widget.TextView(activity);
+            btn.setText("  \u2715  Exit HUD Editor  ");
+            btn.setTextColor(0xFFFFFFFF);
+            btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+            btn.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+            btn.setGravity(android.view.Gravity.CENTER);
+            int padH = (int) (16 * density);
+            int padV = (int) (12 * density);
+            btn.setPadding(padH, padV, padH, padV);
+            btn.setBackgroundResource(org.levimc.launcher.R.drawable.bg_hud_editor_exit);
+            btn.setElevation(12f);
+            btn.setOnClickListener(v -> setHudEditorMode(false));
+            android.view.WindowManager.LayoutParams lp = new android.view.WindowManager.LayoutParams(
+                    android.view.WindowManager.LayoutParams.WRAP_CONTENT,
+                    android.view.WindowManager.LayoutParams.WRAP_CONTENT,
+                    android.view.WindowManager.LayoutParams.TYPE_APPLICATION,
+                    android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                            | android.view.WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                    android.graphics.PixelFormat.TRANSLUCENT);
+            lp.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
+            lp.y = (int) (48 * density);
+            wm.addView(btn, lp);
+            hudEditorExitButton = btn;
+            hudEditorExitParams = lp;
+        } catch (Exception e) {
+            android.util.Log.e("InbuiltOverlayManager", "showHudEditorExitButton", e);
+        }
+    }
+
+    private void hideHudEditorExitButton() {
+        if (hudEditorExitButton == null) return;
+        try {
+            android.view.WindowManager wm = (android.view.WindowManager)
+                    activity.getSystemService(android.content.Context.WINDOW_SERVICE);
+            if (wm != null) {
+                try { wm.removeViewImmediate(hudEditorExitButton); }
+                catch (Exception ignored) {
+                    if (hudEditorExitButton.getParent() instanceof android.view.ViewGroup) {
+                        ((android.view.ViewGroup) hudEditorExitButton.getParent()).removeView(hudEditorExitButton);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("InbuiltOverlayManager", "hideHudEditorExitButton", e);
+        }
+        hudEditorExitButton = null;
+        hudEditorExitParams = null;
     }
 
     public boolean isHudEditorModeActive() {
