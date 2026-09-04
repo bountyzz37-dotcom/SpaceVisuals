@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/mod_row_root" android:layout_width="match_parent" android:layout_height="36dp"
-    android:layout_marginStart="3dp" android:layout_marginEnd="3dp" android:layout_marginTop="2dp" android:layout_marginBottom="2dp"
-    android:background="@drawable/bg_mod_row" android:gravity="center_vertical" android:orientation="horizontal"
-    android:paddingStart="10dp" android:paddingEnd="6dp">
-    <ImageView android:id="@+id/mod_row_icon" android:layout_width="16dp" android:layout_height="16dp" android:layout_marginEnd="8dp"
-        android:duplicateParentState="true" android:scaleType="centerInside" android:tint="#C8D8F0"/>
-    <TextView android:id="@+id/mod_row_name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-        android:duplicateParentState="true" android:ellipsize="end" android:maxLines="1" android:textColor="#E8F0FF" android:textSize="12sp"/>
-    <ImageButton android:id="@+id/mod_row_config" android:layout_width="28dp" android:layout_height="28dp"
-        android:background="?attr/selectableItemBackgroundBorderless" android:duplicateParentState="true" android:padding="5dp"
-        android:src="@drawable/ic_settings" android:tint="#A8B8D0" android:contentDescription="Config"/>
-    <androidx.appcompat.widget.SwitchCompat android:id="@+id/mod_row_switch" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:scaleX="0.85" android:scaleY="0.85" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint"/>
+    android:id="@+id/mod_row_root"
+    android:layout_width="match_parent"
+    android:layout_height="44dp"
+    android:layout_margin="4dp"
+    android:background="@drawable/bg_liquid_glass_capsule"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingEnd="8dp">
+    <ImageView android:id="@+id/mod_row_icon" android:layout_width="16dp" android:layout_height="16dp"
+        android:layout_marginEnd="8dp" android:src="@drawable/ic_mod_bolt" android:tint="#FFFFFF"/>
+    <TextView android:id="@+id/mod_row_name" android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:ellipsize="end" android:maxLines="1"
+        android:textColor="#FFFFFF" android:textSize="13sp" android:textStyle="bold"/>
+    <ImageButton android:id="@+id/mod_row_config" android:layout_width="30dp" android:layout_height="30dp"
+        android:background="?attr/selectableItemBackgroundBorderless" android:padding="5dp"
+        android:src="@drawable/ic_gear_small" android:tint="#EEFFFFFF" android:contentDescription="Config"/>
+    <androidx.appcompat.widget.SwitchCompat android:id="@+id/mod_row_switch"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:scaleX="0.9" android:scaleY="0.9"
+        android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint"/>
 </LinearLayout>

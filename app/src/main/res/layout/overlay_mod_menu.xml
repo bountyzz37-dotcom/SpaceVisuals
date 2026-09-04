@@ -3,7 +3,7 @@
     android:id="@+id/mod_menu_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#66000000"
+    android:background="#33000000"
     android:clickable="true"
     android:focusable="true">
 
@@ -11,95 +11,179 @@
         android:id="@+id/mod_menu_starfield"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.55" />
+        android:alpha="0.7" />
 
     <LinearLayout
-        android:id="@+id/mod_menu_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="28dp"
-        android:paddingBottom="16dp">
+        android:id="@+id/mod_menu_shell"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:gravity="center_vertical"
+            android:id="@+id/mod_menu_container"
+            android:layout_width="520dp"
+            android:layout_height="340dp"
+            android:background="@drawable/bg_liquid_glass_panel"
             android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="12dp">
-
-            <ImageView
-                android:id="@+id/client_logo"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@drawable/ic_spacevisuals_logo"
-                android:scaleType="fitCenter"
-                android:contentDescription="SpaceVisuals" />
-
-            <TextView
-                android:id="@+id/client_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="SpaceVisuals"
-                android:textColor="#E8F4FF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/search_input"
-                android:layout_width="0dp"
-                android:layout_height="32dp"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_atlas_search"
-                android:hint="Search modules"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:textColor="#EEEEEE"
-                android:textColorHint="#88A0B8"
-                android:textSize="13sp"
-                android:maxLines="1"
-                android:inputType="text" />
-
-            <ImageButton
-                android:id="@+id/nav_close"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_close_atlas"
-                android:contentDescription="Close"
-                android:padding="6dp" />
-        </LinearLayout>
-
-        <HorizontalScrollView
-            android:id="@+id/panels_scroll"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:scrollbars="none"
-            android:clipToPadding="false"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:paddingTop="8dp">
+            android:padding="12dp">
 
             <LinearLayout
-                android:id="@+id/panels_container"
-                android:layout_width="wrap_content"
+                android:id="@+id/nav_rail"
+                android:layout_width="48dp"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:gravity="top" />
-        </HorizontalScrollView>
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
 
-        <TextView
-            android:id="@+id/empty_state_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="No modules found"
-            android:textColor="#88A0B8"
-            android:visibility="gone" />
+                <ImageButton android:id="@+id/nav_home" android:layout_width="40dp" android:layout_height="40dp"
+                    android:layout_marginBottom="8dp" android:background="@drawable/bg_liquid_glass_nav"
+                    android:src="@drawable/ic_nav_home" android:scaleType="centerInside" android:padding="8dp"
+                    android:contentDescription="Modules" />
+
+                <ImageButton android:id="@+id/nav_settings" android:layout_width="40dp" android:layout_height="40dp"
+                    android:layout_marginBottom="8dp" android:background="@drawable/bg_liquid_glass_nav"
+                    android:src="@drawable/ic_nav_settings" android:scaleType="centerInside" android:padding="8dp"
+                    android:contentDescription="Client settings" />
+
+                <Space android:layout_width="1dp" android:layout_height="0dp" android:layout_weight="1" />
+
+                <ImageButton android:id="@+id/nav_hud_edit" android:layout_width="40dp" android:layout_height="40dp"
+                    android:background="@drawable/bg_liquid_glass_nav" android:src="@drawable/ic_nav_edit"
+                    android:scaleType="centerInside" android:padding="8dp" android:contentDescription="HUD editor" />
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent"
+                android:layout_weight="1" android:layout_marginStart="10dp" android:orientation="vertical">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="36dp"
+                    android:gravity="center_vertical" android:orientation="horizontal">
+
+                    <TextView android:id="@+id/tab_quick_access" android:layout_width="wrap_content"
+                        android:layout_height="28dp" android:background="@drawable/bg_liquid_glass_chip"
+                        android:gravity="center" android:paddingStart="12dp" android:paddingEnd="12dp"
+                        android:text="QUICK ACCESS" android:textColor="#FFFFFF" android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <Space android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+
+                    <EditText android:id="@+id/search_input" android:layout_width="120dp" android:layout_height="28dp"
+                        android:background="@drawable/bg_liquid_glass_search" android:hint="search..."
+                        android:paddingStart="10dp" android:paddingEnd="10dp" android:textColor="#FFFFFF"
+                        android:textColorHint="#AAFFFFFF" android:textSize="12sp" android:maxLines="1"
+                        android:inputType="text" />
+
+                    <ImageButton android:id="@+id/nav_close" android:layout_width="32dp" android:layout_height="32dp"
+                        android:layout_marginStart="6dp" android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel" android:tint="#EEFFFFFF"
+                        android:contentDescription="Close" />
+                </LinearLayout>
+
+                <FrameLayout android:layout_width="match_parent" android:layout_height="0dp"
+                    android:layout_weight="1" android:layout_marginTop="8dp">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/mods_recycler" android:layout_width="match_parent"
+                        android:layout_height="match_parent" android:clipToPadding="false"
+                        android:overScrollMode="never" />
+
+                    <TextView android:id="@+id/empty_state_text" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="No modules found" android:textColor="#CCFFFFFF" android:visibility="gone" />
+
+                    <ScrollView android:id="@+id/client_settings_page" android:layout_width="match_parent"
+                        android:layout_height="match_parent" android:visibility="gone">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:padding="6dp">
+
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:text="Client Settings" android:textColor="#FFFFFF" android:textSize="15sp"
+                                android:textStyle="bold" android:layout_marginBottom="10dp" />
+
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:text="Theme color" android:textColor="#EEFFFFFF" android:textSize="12sp" />
+                            <LinearLayout android:id="@+id/theme_row" android:layout_width="match_parent"
+                                android:layout_height="36dp" android:layout_marginTop="6dp" android:layout_marginBottom="12dp"
+                                android:orientation="horizontal" android:gravity="center_vertical" />
+
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:text="Glass transparency" android:textColor="#EEFFFFFF" android:textSize="12sp" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:orientation="horizontal" android:gravity="center_vertical"
+                                android:layout_marginTop="4dp" android:layout_marginBottom="12dp">
+                                <SeekBar android:id="@+id/glass_alpha_seek" android:layout_width="0dp"
+                                    android:layout_height="wrap_content" android:layout_weight="1" android:max="100" />
+                                <TextView android:id="@+id/glass_alpha_value" android:layout_width="40dp"
+                                    android:layout_height="wrap_content" android:gravity="center"
+                                    android:text="55" android:textColor="#FFFFFF" android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:orientation="horizontal" android:gravity="center_vertical"
+                                android:layout_marginBottom="12dp">
+                                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                                    android:layout_weight="1" android:text="Space view (stars)"
+                                    android:textColor="#EEFFFFFF" android:textSize="12sp" />
+                                <androidx.appcompat.widget.SwitchCompat android:id="@+id/starfield_switch"
+                                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                    android:thumbTint="@color/switch_thumb_tint"
+                                    android:trackTint="@color/switch_track_tint" />
+                            </LinearLayout>
+
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:text="Menu button opacity" android:textColor="#EEFFFFFF" android:textSize="12sp" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:orientation="horizontal" android:gravity="center_vertical"
+                                android:layout_marginTop="4dp" android:layout_marginBottom="12dp">
+                                <SeekBar android:id="@+id/button_opacity_seek" android:layout_width="0dp"
+                                    android:layout_height="wrap_content" android:layout_weight="1" android:max="100" />
+                                <TextView android:id="@+id/button_opacity_value" android:layout_width="40dp"
+                                    android:layout_height="wrap_content" android:gravity="center"
+                                    android:text="0.7" android:textColor="#FFFFFF" android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:text="Show menu button" android:textColor="#EEFFFFFF" android:textSize="12sp" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="34dp"
+                                android:layout_marginTop="6dp" android:orientation="horizontal">
+                                <TextView android:id="@+id/show_button_never" android:layout_width="0dp"
+                                    android:layout_height="match_parent" android:layout_weight="1" android:gravity="center"
+                                    android:background="@drawable/bg_liquid_glass_nav" android:text="Never"
+                                    android:textColor="#FFFFFF" android:textSize="12sp" />
+                                <TextView android:id="@+id/show_button_menus" android:layout_width="0dp"
+                                    android:layout_height="match_parent" android:layout_weight="1" android:layout_marginStart="6dp"
+                                    android:gravity="center" android:background="@drawable/bg_liquid_glass_nav"
+                                    android:text="In Menus" android:textColor="#FFFFFF" android:textSize="12sp" />
+                                <TextView android:id="@+id/show_button_always" android:layout_width="0dp"
+                                    android:layout_height="match_parent" android:layout_weight="1" android:layout_marginStart="6dp"
+                                    android:gravity="center" android:background="@drawable/bg_liquid_glass_nav"
+                                    android:text="Always" android:textColor="#FFFFFF" android:textSize="12sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </ScrollView>
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/module_settings_panel" android:layout_width="260dp"
+            android:layout_height="340dp" android:layout_marginStart="10dp"
+            android:background="@drawable/bg_liquid_glass_side" android:orientation="vertical"
+            android:padding="12dp" android:visibility="gone">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:id="@+id/module_settings_title" android:layout_width="0dp"
+                    android:layout_height="wrap_content" android:layout_weight="1" android:text="Settings"
+                    android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold" />
+                <ImageButton android:id="@+id/module_settings_close" android:layout_width="28dp"
+                    android:layout_height="28dp" android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel" android:tint="#EEFFFFFF"
+                    android:contentDescription="Close settings" />
+            </LinearLayout>
+            <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
+                android:layout_weight="1" android:layout_marginTop="8dp">
+                <LinearLayout android:id="@+id/module_settings_content" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

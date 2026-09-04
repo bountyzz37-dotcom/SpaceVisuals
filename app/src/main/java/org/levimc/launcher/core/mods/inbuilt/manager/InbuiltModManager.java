@@ -12,6 +12,16 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class InbuiltModManager {
     private static final String PREFS_NAME = "inbuilt_mods_prefs";
+    private static final String KEY_UI_THEME_COLOR = "ui_theme_color";
+    private static final String KEY_STARFIELD_ENABLED = "ui_starfield_enabled";
+    private static final String KEY_UI_GLASS_ALPHA = "ui_glass_alpha";
+    public static final int THEME_BLUE = 0xFF2F6BFF;
+    public static final int THEME_CYAN = 0xFF2EC8E6;
+    public static final int THEME_PURPLE = 0xFF8B5CFF;
+    public static final int THEME_GREEN = 0xFF3DDB8A;
+    public static final int THEME_PINK = 0xFFFF5CA8;
+    public static final int THEME_ORANGE = 0xFFFF8A3D;
+
     private static final String KEY_AUTOSPRINT_KEY = "autosprint_key";
     private static final String KEY_OVERLAY_BUTTON_SIZE_PREFIX = "overlay_button_size_";
     private static final String KEY_OVERLAY_OPACITY_PREFIX = "overlay_opacity_";
@@ -336,5 +346,13 @@ public class InbuiltModManager {
         if (slot < 1 || slot > 9) return;
         prefs.edit().putBoolean(KEY_HOTBAR_SLOT_ENABLED_PREFIX + slot, enabled).apply();
     }
+
+
+    public int getUiThemeColor() { return prefs.getInt(KEY_UI_THEME_COLOR, THEME_BLUE); }
+    public void setUiThemeColor(int color) { prefs.edit().putInt(KEY_UI_THEME_COLOR, color).apply(); }
+    public boolean isStarfieldEnabled() { return prefs.getBoolean(KEY_STARFIELD_ENABLED, true); }
+    public void setStarfieldEnabled(boolean enabled) { prefs.edit().putBoolean(KEY_STARFIELD_ENABLED, enabled).apply(); }
+    public int getUiGlassAlpha() { return prefs.getInt(KEY_UI_GLASS_ALPHA, 55); }
+    public void setUiGlassAlpha(int alpha) { prefs.edit().putInt(KEY_UI_GLASS_ALPHA, Math.max(20, Math.min(90, alpha))).apply(); }
 
 }
