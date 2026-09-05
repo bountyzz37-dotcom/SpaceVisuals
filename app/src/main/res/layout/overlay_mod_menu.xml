@@ -33,7 +33,6 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <!-- Top bar: brand, nav pills (Modules/Settings), close -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
@@ -43,10 +42,16 @@
                     android:paddingStart="14dp"
                     android:paddingEnd="10dp">
 
-                    <View
-                        android:layout_width="10dp"
-                        android:layout_height="10dp"
-                        android:background="@drawable/bg_nav_icon_selected" />
+                    <ImageButton
+                        android:id="@+id/nav_home"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_nav_icon_selected"
+                        android:padding="5dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_modules"
+                        android:tint="#FFFFFF"
+                        android:contentDescription="Home" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -104,7 +109,6 @@
                         android:contentDescription="Close" />
                 </LinearLayout>
 
-                <!-- Category tabs: All / Game / HUD / Script -->
                 <LinearLayout
                     android:id="@+id/main_content_container"
                     android:layout_width="match_parent"
@@ -210,7 +214,6 @@
                     </FrameLayout>
                 </LinearLayout>
 
-                <!-- Settings panel: swapped in when the gear icon is tapped -->
                 <LinearLayout
                     android:id="@+id/settings_panel"
                     android:layout_width="match_parent"
