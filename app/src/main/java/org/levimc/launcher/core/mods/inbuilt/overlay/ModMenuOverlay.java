@@ -65,6 +65,9 @@ public class ModMenuOverlay {
     private ImageButton navHome, navSettings, navProfile, navClose;
 
     private View mainContentContainer, settingsPanel;
+    private TextView settingsPanelTitle;
+    private View globalSettingsSection;
+    private android.widget.LinearLayout moduleSettingsContent;
     private android.widget.SeekBar uiScaleSeekBar;
     private TextView uiScaleValueText;
     private boolean settingsPanelOpen = false;
@@ -243,6 +246,9 @@ public class ModMenuOverlay {
 
         mainContentContainer = overlayView.findViewById(R.id.main_content_container);
         settingsPanel = overlayView.findViewById(R.id.settings_panel);
+        settingsPanelTitle = overlayView.findViewById(R.id.settings_panel_title);
+        globalSettingsSection = overlayView.findViewById(R.id.global_settings_section);
+        moduleSettingsContent = overlayView.findViewById(R.id.module_settings_content);
         uiScaleSeekBar = overlayView.findViewById(R.id.ui_scale_seekbar);
         uiScaleValueText = overlayView.findViewById(R.id.ui_scale_value);
         setupSettingsPanel();
@@ -260,7 +266,7 @@ public class ModMenuOverlay {
 
             @Override
             public void onConfig(UnifiedMod mod) {
-                // Config handled by existing system
+                showModuleSettings(mod);
             }
         });
 
@@ -310,11 +316,48 @@ public class ModMenuOverlay {
         if (settingsPanel != null) {
             settingsPanel.setVisibility(show ? View.VISIBLE : View.GONE);
         }
+        if (settingsPanelTitle != null) {
+            settingsPanelTitle.setText("Client Settings");
+        }
+        if (globalSettingsSection != null) {
+            globalSettingsSection.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        if (moduleSettingsContent != null) {
+            moduleSettingsContent.setVisibility(View.GONE);
+        }
         if (navSettings != null) {
             navSettings.setBackgroundResource(show
                     ? R.drawable.bg_nav_icon_selected
                     : android.R.color.transparent);
         }
+    }
+
+    private void showModuleSettings(UnifiedMod mod) {
+        if (mod == null || settingsPanel == null || moduleSettingsContent == null) return;
+
+        settingsPanelOpen = true;
+        if (mainContentContainer != null) mainContentContainer.setVisibility(View.GONE);
+        settingsPanel.setVisibility(View.VISIBLE);
+        if (globalSettingsSection != null) globalSettingsSection.setVisibility(View.GONE);
+        moduleSettingsContent.setVisibility(View.VISIBLE);
+
+        if (settingsPanelTitle != null) {
+            settingsPanelTitle.setText(mod.getName() != null ? mod.getName() : "Module Settings");
+        }
+
+        moduleSettingsContent.removeAllViews();
+
+        TextView desc = new TextView(activity);
+        desc.setText(mod.getDescription() != null
+                ? mod.getDescription()
+                : "No configurable options for this module yet.");
+        desc.setTextColor(0xFFD8E1E6);
+        desc.setTextSize(13f);
+        moduleSettingsContent.addView(desc);
+
+        // NOTE: this only shows the mod's name/description. If specific mods
+        // have real configurable fields (keybinds, sliders, etc.), those need
+        // to be added here individually once their config schema is known.
     }
 
     private void setupSettingsPanel() {
@@ -402,7 +445,6 @@ public class ModMenuOverlay {
         List<UnifiedMod> filtered = new ArrayList<>();
 
         for (UnifiedMod mod : allMods) {
-            if (!matchesTab(mod, activeTab)) continue;
             if (!currentQuery.isEmpty()) {
                 String name = mod.getName() != null ? mod.getName().toLowerCase(Locale.US) : "";
                 String desc = mod.getDescription() != null ? mod.getDescription().toLowerCase(Locale.US) : "";
