@@ -233,11 +233,7 @@ public class ModMenuOverlay {
         searchInput = overlayView.findViewById(R.id.search_input);
         emptyStateText = overlayView.findViewById(R.id.empty_state_text);
 
-        tabQuickAccess = overlayView.findViewById(R.id.tab_quick_access);
-        tabVisual = overlayView.findViewById(R.id.tab_visual);
-        tabHud = overlayView.findViewById(R.id.tab_hud);
-        tabInput = overlayView.findViewById(R.id.tab_input);
-        tabMisc = overlayView.findViewById(R.id.tab_misc);
+        // category tabs removed — flat mod list
 
         navHome = overlayView.findViewById(R.id.nav_home);
         navSettings = overlayView.findViewById(R.id.nav_settings);

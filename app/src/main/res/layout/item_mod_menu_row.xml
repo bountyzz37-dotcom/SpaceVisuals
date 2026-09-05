@@ -13,6 +13,12 @@
     android:paddingStart="12dp"
     android:paddingEnd="8dp">
 
+    <ImageView
+        android:id="@+id/mod_row_icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
     <ImageButton
         android:id="@+id/mod_row_config"
         android:layout_width="30dp"
