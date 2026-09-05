@@ -1,12 +1,13 @@
 <resources>
-    <color name="glass_accent_blue">#2E7DFF</color>
-    <color name="glass_panel_fill">#3DFFFFFF</color>
-    <color name="glass_panel_border">#59FFFFFF</color>
-    <color name="glass_row_fill">#33FFFFFF</color>
-    <color name="glass_row_border">#40FFFFFF</color>
-    <color name="glass_row_selected">#DE2E7DFF</color>
+    <!-- Atlas-inspired darker palette -->
+    <color name="glass_accent_blue">#3B82F6</color>
+    <color name="glass_panel_fill">#1C1C1E</color>
+    <color name="glass_panel_border">#33FFFFFF</color>
+    <color name="glass_row_fill">#2C2C2E</color>
+    <color name="glass_row_border">#22FFFFFF</color>
+    <color name="glass_row_selected">#3B82F6</color>
     <color name="glass_text_dark">#FF1B2430</color>
     <color name="glass_text_dark_secondary">#FF3A4550</color>
     <color name="glass_icon_dark">#FF5C6773</color>
-    <color name="glass_hint">#661B2430</color>
+    <color name="glass_hint">#66FFFFFF</color>
 </resources>
